@@ -1,7 +1,31 @@
 import streamlit as st
 import pandas as pd
-from gspread_pandas import Spread
-import os
+import gspread
+from google.oauth2.service_account import Credentials
+
+# Funzione semplificata per connettersi
+def connect_to_sheet():
+    # Definisci i permessi necessari
+    scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    
+    # Carica le credenziali dal file che hai caricato su GitHub
+    # Assicurati che il file si chiami esattamente credentials.json nel tuo GitHub
+    creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+    
+    client = gspread.authorize(creds)
+    # Apre il foglio Google per nome
+    sheet = client.open("Dati_Magazzino").sheet1
+    return sheet
+
+# Prova a connetterti
+try:
+    sh = connect_to_sheet()
+    # Legge i dati e li mette in un DataFrame
+    data = sh.get_all_records()
+    df = pd.DataFrame(data)
+    st.success("Connessione riuscita!")
+except Exception as e:
+    st.error(f"Errore: {e}")
 
 st.set_page_config(page_title="Magazzino Semplice", layout="centered")
 
